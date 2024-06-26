@@ -33,7 +33,7 @@ for table in tables:
     category = re.findall(pattern, table.find('th').string)[0]
     rows = table.find('tbody').find_all('tr')
     
-    papers = {category: None}
+    papers[category] = None
     papersOfCategory = []
     for row in rows:
         try: 
