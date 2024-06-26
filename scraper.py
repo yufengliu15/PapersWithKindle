@@ -42,7 +42,9 @@ for table in tables:
         #    print(year)
         
         # extract Title
-        count += 1
+        title = row.find('td', class_="paper-title").string
+        print(title)
+    break
         
         
 print(count)
