@@ -28,7 +28,6 @@ pattern = r'\((.*?)\)'
 #       .... 
 #   }
 # }
-count = 0
 for table in tables:
     category = re.findall(pattern, table.find('th').string)[0]
     rows = table.find('tbody').find_all('tr')
@@ -43,10 +42,13 @@ for table in tables:
         
         # extract Title
         title = row.find('td', class_="paper-title").string
-        print(title)
+        
+        # extract Link
+        link = row.find('td', class_="paper-title").find('a').attrs['href']
+        print(link)
+        
     break
         
         
-print(count)
 
 
