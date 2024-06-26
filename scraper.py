@@ -33,19 +33,21 @@ for table in tables:
     rows = table.find('tbody').find_all('tr')
     for row in rows:
         # extract Year
-        #if (row.find('th') is None):
-        #    print(lastYear)
-        #else:
-        #    year = row.find('th').find('a').string
-        #    lastYear = year
-        #    print(year)
-        
+        if (row.find('th') is None):
+            year = lastYear
+        else:
+            year = row.find('th').find('a').string
+            lastYear = year
+            
         # extract Title
         title = row.find('td', class_="paper-title").string
         
         # extract Link
         link = row.find('td', class_="paper-title").find('a').attrs['href']
-        print(link)
+        
+        # extract Authors
+        author = row.find('td', class_="authors").contents[0]
+        print(author)
         
     break
         
