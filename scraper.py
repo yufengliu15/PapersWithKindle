@@ -6,6 +6,7 @@ import requests, re, json, time, random
 
 from urllib.parse import urlparse
 
+from scrapegraphai.graphs import SmartScraperGraph
 
 URL = "https://jeffhuang.com/best_paper_awards/conferences.html"
 
@@ -14,8 +15,23 @@ htmlData = res.content
 parsedData = BeautifulSoup(htmlData, "html.parser")
 tables = parsedData.find_all('table')
 
+graph_config = {
+    "llm": {
+        "model": "ollama/mistral",
+        "temperature": 0,
+        "format": "json",  # Ollama needs the format to be specified explicitly
+        "base_url": "http://localhost:11434",  # set Ollama URL
+    },
+    "embeddings": {
+        "model": "ollama/nomic-embed-text",
+        "base_url": "http://localhost:11434",  # set Ollama URL
+    },
+    "verbose": True,
+}
+
 # regex
 pattern = r'\((.*?)\)'
+pdfPattern = re.compile('PDF')
 
 user_agent_list = [
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
@@ -48,24 +64,24 @@ def extractAuthor(row):
     except:
         print("Unable to parse for Author!")  
         
-#def extractSemanticScholarFile(link):
-#    try:
-#        welp = None
-#    except:
-#        print("Unable to download the PDF from Sematic Scholar")
-#
-#def extractGoogleFile(link):
-#    #try:
-#    for _ in user_agent_list:
-#        #Pick a random user agent
-#        user_agent = random.choice(user_agent_list)
-#        #Set the headers 
-#        headers = {'User-Agent': user_agent}
-#        
-#    _parsedData = BeautifulSoup(requests.get(link, headers=headers).content, "html.parser")
+def extractSemanticScholarFile(link):
+    try:
+        welp = None
+    except:
+        print("Unable to download the PDF from Sematic Scholar")
+
+def extractGoogleFile(link):
+    smart_scraper_garph = SmartScraperGraph(
+        prompt="return the link to a PDF file of the research paper found in the link provided. If there is no pdf file, then return null.",
+        source=link,
+        config=graph_config
+    ) 
     
-    #except:
-    #    print("Unable to download the PDF from Google Scholar")   
+    result = smart_scraper_garph.run()
+
+    print(result)
+    print("======================================")
+    print(link)
 
 papers = {}
 sites = {}
@@ -90,13 +106,8 @@ for table in tables:
     papersOfCategory = []
     for row in rows:
         link = extractLink(row)
-        #key = urlparse(link).netloc
-        #if (key == 'scholar.google.com'):
-        #    filePath = extractGoogleFile(link)
-        #elif (key == 'www.semanticscholar.org'):
-        #    filePath = extractSemanticScholarFile(link)
-        #else:
-        #    continue
+        key = urlparse(link).netloc
+        filePath = extractGoogleFile(link)
         
         try: 
         # extract Year
@@ -115,9 +126,11 @@ for table in tables:
         # add all parsed fields into an array
         paper = [year, title, author, link]
         papersOfCategory.append(paper)
+        break
     
     # send to dictionary
     papers[category] = papersOfCategory
+    break
     
 
 # export as JSON
