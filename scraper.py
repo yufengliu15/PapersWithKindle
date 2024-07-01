@@ -17,16 +17,26 @@ tables = parsedData.find_all('table')
 
 graph_config = {
     "llm": {
-        "model": "ollama/mistral",
-        "temperature": 0,
-        "format": "json",  # Ollama needs the format to be specified explicitly
-        "base_url": "http://localhost:11434",  # set Ollama URL
+        "model": "llama3",
+        "temperature": 0.0,
+        "format": "json",
     },
     "embeddings": {
-        "model": "ollama/nomic-embed-text",
-        "base_url": "http://localhost:11434",  # set Ollama URL
+        "model": "nomic-embed-text",
     },
-    "verbose": True,
+    "loader_kwargs": {
+        "proxy" : {
+            "server": "broker",
+            "criteria": {
+                "anonymous": True,
+                "secure": True,
+                "countryset": {"IT"},
+                "timeout": 10.0,
+                "max_shape": 3
+            },
+        },
+    },
+    "verbose": True
 }
 
 # regex
@@ -72,7 +82,7 @@ def extractSemanticScholarFile(link):
 
 def extractGoogleFile(link):
     smart_scraper_garph = SmartScraperGraph(
-        prompt="return the link to a PDF file of the research paper found in the link provided. If there is no pdf file, then return null.",
+        prompt="return the link to a PDF file of the research paper found in the link provided. Look for a .pdf ending in the link, and for [PDF] in the HTML. If there is no pdf file, then return null.",
         source=link,
         config=graph_config
     ) 
@@ -126,7 +136,7 @@ for table in tables:
         # add all parsed fields into an array
         paper = [year, title, author, link]
         papersOfCategory.append(paper)
-        break
+        
     
     # send to dictionary
     papers[category] = papersOfCategory
