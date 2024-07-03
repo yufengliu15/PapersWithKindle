@@ -17,12 +17,14 @@ tables = parsedData.find_all('table')
 
 graph_config = {
     "llm": {
-        "model": "llama3",
-        "temperature": 0.0,
-        "format": "json",
+        "model": "ollama/mistral",
+        "temperature": 0,
+        "format": "json",  # Ollama needs the format to be specified explicitly
+        "base_url": "http://localhost:11434",  # set Ollama URL
     },
     "embeddings": {
-        "model": "nomic-embed-text",
+        "model": "ollama/nomic-embed-text",
+        "base_url": "http://localhost:11434", 
     },
     "loader_kwargs": {
         "proxy" : {
@@ -36,7 +38,9 @@ graph_config = {
             },
         },
     },
-    "verbose": True
+    "verbose": True,
+    "headless": False,
+    "max_results": 3
 }
 
 # regex
@@ -74,20 +78,24 @@ def extractAuthor(row):
     except:
         print("Unable to parse for Author!")  
         
-def extractSemanticScholarFile(link):
+def extractNormal(link):
     try:
-        welp = None
+        res = requests.get(link)
+        htmlData = res.content
+        parsedData = BeautifulSoup(htmlData, "html.parser")
+        span = parsedData.findAll('span')
+        print(span)
     except:
         print("Unable to download the PDF from Sematic Scholar")
 
-def extractGoogleFile(link):
-    smart_scraper_garph = SmartScraperGraph(
-        prompt="return the link to a PDF file of the research paper found in the link provided. Look for a .pdf ending in the link, and for [PDF] in the HTML. If there is no pdf file, then return null.",
+def extractUsingAI(link):
+    smart_scraper_graph = SmartScraperGraph(
+        prompt="return the link to the HTML element containing the words PDF. If there is none, then return null.",
         source=link,
         config=graph_config
     ) 
     
-    result = smart_scraper_garph.run()
+    result = smart_scraper_graph.run()
 
     print(result)
     print("======================================")
@@ -117,7 +125,7 @@ for table in tables:
     for row in rows:
         link = extractLink(row)
         key = urlparse(link).netloc
-        filePath = extractGoogleFile(link)
+        filePath = extractNormal(link)
         
         try: 
         # extract Year
