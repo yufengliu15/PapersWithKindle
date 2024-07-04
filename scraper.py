@@ -7,6 +7,7 @@ import requests, re, json, time, random
 from urllib.parse import urlparse
 
 URL = "https://jeffhuang.com/best_paper_awards/conferences.html"
+READER_API = "https://r.jina.ai/"
 
 res = requests.get(URL)
 htmlData = res.content
@@ -29,6 +30,8 @@ def download_file(url, filename):
     
     with open("./papers/" + filename, 'wb') as file:
         file.write(response.content)
+    
+    return "./papers/" + filename
 
 # functions to extract html
 # -----------------------------
@@ -52,8 +55,11 @@ def extractAuthor(row):
         return row.find('td', class_="authors").contents[0]
     except:
         print("Unable to parse for Author!")  
-        
-def extractNormal(title, link):
+
+def extractSemanticScholar(title, link):
+    return
+
+def extractGoogleScholar(title, link):
     #try:
         res = requests.get(link)
         htmlData = res.content
@@ -63,9 +69,15 @@ def extractNormal(title, link):
             print(urlparse(link).netloc)
         else:
             print(urlparse(link).netloc)
-            print(f"span[95]: {span[95].parent["href"]}")
-            if (not "/scholar_alerts" in span[95].parent["href"]):
-                download_file(span[95].parent["href"], title + ".pdf")
+            if (len(span) < 95):
+                print(span)
+                return
+            link_to_pdf = span[95].parent["href"]
+            print(f"span[95].parent['href']: {link_to_pdf}")
+            print(f"span[95]: {span[95].text}")
+            #if (span[95].content)
+            if (not ("/scholar_alerts" in link_to_pdf)):
+                return download_file(link_to_pdf, title + ".pdf")
     #except:
     #    print("Unable to download the PDF from Sematic Scholar")
 
@@ -91,8 +103,12 @@ for table in tables:
     papersOfCategory = []
     for row in rows:
         link = extractLink(row)
+        title = extractTitle(row)
         key = urlparse(link).netloc
-        
+        if (key == "www.semanticscholar.org"):
+            filePath = extractSemanticScholar(title, link)
+        elif (key == "scholar.google.com"):
+            filePath = extractGoogleScholar(title, link)
         try: 
         # extract Year
             if (row.find('th') is None):
@@ -103,13 +119,12 @@ for table in tables:
         except:
             print("Unable to parse for Year!")
             
-        title = extractTitle(row)
         author = extractAuthor(row)
-        filePath = extractNormal(title, link)
+        
 
 
         # add all parsed fields into an array
-        paper = [year, title, author, link]
+        paper = [year, title, author, link, filePath]
         papersOfCategory.append(paper)
         
     
