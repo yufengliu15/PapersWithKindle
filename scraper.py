@@ -57,27 +57,29 @@ def extractAuthor(row):
         print("Unable to parse for Author!")  
 
 def extractSemanticScholar(title, link):
+    #er
     return
 
 def extractGoogleScholar(title, link):
     #try:
-        res = requests.get(link)
+        res = requests.get(READER_API + link, headers={"X-Proxy-Url": "brd.superproxy.io:22225", "X-Timeout": "10"})
         htmlData = res.content
-        parsedData = BeautifulSoup(htmlData, "html.parser")
-        span = parsedData.findAll('span')
-        if (not span):
-            print(urlparse(link).netloc)
-        else:
-            print(urlparse(link).netloc)
-            if (len(span) < 95):
-                print(span)
-                return
-            link_to_pdf = span[95].parent["href"]
-            print(f"span[95].parent['href']: {link_to_pdf}")
-            print(f"span[95]: {span[95].text}")
-            #if (span[95].content)
-            if (not ("/scholar_alerts" in link_to_pdf)):
-                return download_file(link_to_pdf, title + ".pdf")
+        print(htmlData)
+        #parsedData = BeautifulSoup(htmlData, "html.parser")
+        #span = parsedData.findAll('span')
+        #if (not span):
+        #    print(urlparse(link).netloc)
+        #else:
+        #    print(urlparse(link).netloc)
+        #    if (len(span) < 95):
+        #        print(span)
+        #        return
+        #    link_to_pdf = span[95].parent["href"]
+        #    print(f"span[95].parent['href']: {link_to_pdf}")
+        #    print(f"span[95]: {span[95].text}")
+        #    #if (span[95].content)
+        #    if (not ("/scholar_alerts" in link_to_pdf)):
+        #        return download_file(link_to_pdf, title + ".pdf")
     #except:
     #    print("Unable to download the PDF from Sematic Scholar")
 
