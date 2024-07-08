@@ -122,8 +122,6 @@ for table in tables:
             print("Unable to parse for Year!")
             
         author = extractAuthor(row)
-        
-
 
         # add all parsed fields into an array
         paper = [year, title, author, link, filePath]
