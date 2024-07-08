@@ -2,13 +2,17 @@
 # this is because it sorts it by category for me :D
 
 from bs4 import BeautifulSoup
-import requests, re, json, time, random
-
+import requests, re, json
+from firecrawl import FirecrawlApp
+import os
+from dotenv import load_dotenv
 from urllib.parse import urlparse
 
 URL = "https://jeffhuang.com/best_paper_awards/conferences.html"
-READER_API = "https://r.jina.ai/"
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
+app = FirecrawlApp(api_key=API_KEY)
 res = requests.get(URL)
 htmlData = res.content
 parsedData = BeautifulSoup(htmlData, "html.parser")
@@ -16,14 +20,6 @@ tables = parsedData.find_all('table')
 
 # regex
 pattern = r'\((.*?)\)'
-
-user_agent_list = [
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-]
 
 def download_file(url, filename):
     response = requests.get(url)
@@ -62,9 +58,8 @@ def extractSemanticScholar(title, link):
 
 def extractGoogleScholar(title, link):
     #try:
-        res = requests.get(READER_API + link, headers={"X-Proxy-Url": "brd.superproxy.io:22225", "X-Timeout": "10"})
-        htmlData = res.content
-        print(htmlData)
+        scraped_data = app.scrape_url(link)
+        print(scraped_data)
         #parsedData = BeautifulSoup(htmlData, "html.parser")
         #span = parsedData.findAll('span')
         #if (not span):
@@ -127,7 +122,7 @@ for table in tables:
         paper = [year, title, author, link, filePath]
         papersOfCategory.append(paper)
         
-    
+        break
     # send to dictionary
     papers[category] = papersOfCategory
     break
