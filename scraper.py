@@ -2,10 +2,7 @@
 # this is because it sorts it by category for me :D
 
 from bs4 import BeautifulSoup
-import requests, re, json, time, random
-
-from urllib.parse import urlparse
-
+import requests, re, json
 
 URL = "https://jeffhuang.com/best_paper_awards/conferences.html"
 
@@ -17,13 +14,13 @@ tables = parsedData.find_all('table')
 # regex
 pattern = r'\((.*?)\)'
 
-user_agent_list = [
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.1.1 Safari/605.1.15',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:77.0) Gecko/20100101 Firefox/77.0',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:77.0) Gecko/20100101 Firefox/77.0',
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36',
-]
+def download_file(url, filename):
+    response = requests.get(url)
+    
+    with open("./papers/" + filename, 'wb') as file:
+        file.write(response.content)
+    
+    return "./papers/" + filename
 
 # functions to extract html
 # -----------------------------
@@ -47,28 +44,8 @@ def extractAuthor(row):
         return row.find('td', class_="authors").contents[0]
     except:
         print("Unable to parse for Author!")  
-        
-#def extractSemanticScholarFile(link):
-#    try:
-#        welp = None
-#    except:
-#        print("Unable to download the PDF from Sematic Scholar")
-#
-#def extractGoogleFile(link):
-#    #try:
-#    for _ in user_agent_list:
-#        #Pick a random user agent
-#        user_agent = random.choice(user_agent_list)
-#        #Set the headers 
-#        headers = {'User-Agent': user_agent}
-#        
-#    _parsedData = BeautifulSoup(requests.get(link, headers=headers).content, "html.parser")
-    
-    #except:
-    #    print("Unable to download the PDF from Google Scholar")   
 
 papers = {}
-sites = {}
 
 # Structure:
 # { "Category 1": [{
@@ -90,14 +67,8 @@ for table in tables:
     papersOfCategory = []
     for row in rows:
         link = extractLink(row)
-        #key = urlparse(link).netloc
-        #if (key == 'scholar.google.com'):
-        #    filePath = extractGoogleFile(link)
-        #elif (key == 'www.semanticscholar.org'):
-        #    filePath = extractSemanticScholarFile(link)
-        #else:
-        #    continue
-        
+        title = extractTitle(row)
+
         try: 
         # extract Year
             if (row.find('th') is None):
@@ -108,18 +79,16 @@ for table in tables:
         except:
             print("Unable to parse for Year!")
             
-        title = extractTitle(row)
         author = extractAuthor(row)
 
-
         # add all parsed fields into an array
-        paper = [year, title, author, link]
+        paper = {"year": year, "title": title, "author": author, "link": link}
         papersOfCategory.append(paper)
-    
+        
+        
     # send to dictionary
     papers[category] = papersOfCategory
     
-
 # export as JSON
 try:  
     with open("papers.json", "w") as outfile:
@@ -127,3 +96,4 @@ try:
     print("Successfully Exported to JSON")
 except:
     print("Unable to Export to JSON")
+
