@@ -1,4 +1,4 @@
-import json
+import json, os, requests
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
 import os
@@ -13,7 +13,13 @@ f = open('papers.json')
 
 data = json.load(f)
 
-print(len(data["Artificial Intelligence"]))
+def download_file(url, filename):
+    response = requests.get(url)
+    
+    with open("./papers/" + filename, 'wb') as file:
+        file.write(response.content)
+    
+    return "./papers/" + filename
 
 #def extractGoogleScholar(title, link):
     #try:
@@ -37,3 +43,18 @@ print(len(data["Artificial Intelligence"]))
         #        return download_file(link_to_pdf, title + ".pdf")
     #except:
     #    print("Unable to download the PDF from Sematic Scholar")
+
+def iterateJSON(counter):
+    for category in data:
+        for paper in data[category]:
+            if counter == 1:
+                return
+            counter += 1
+            paper["filepath"] = "blah"
+            print(paper)
+
+iterateJSON(counter=0)
+
+
+
+
