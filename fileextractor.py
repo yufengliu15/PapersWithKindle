@@ -1,4 +1,4 @@
-import json, os, requests
+import json, os, requests, time
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
 from urllib.parse import urlparse
@@ -17,7 +17,7 @@ data = json.load(f)
 
 def download_file(url, filename):
     response = requests.get(url)
-    
+    # TODO: ADD LIST TO CATCH INVALID PDFS
     with open("./papers/" + filename + ".pdf", 'wb') as file:
         file.write(response.content)
     
@@ -41,7 +41,7 @@ def extract(content: str, title):
 
 def extractPDFUrl(link, title):
     scraped_data = app.scrape_url(link)['markdown']
-
+    # TODO: semantic scholar has a lot of useless shit, almost all the things i need are in the first couple of lines. remove everything else to save token usage (money)
     response = extract(scraped_data, title)
     res = json.loads(response)
     print(res)
@@ -49,21 +49,33 @@ def extractPDFUrl(link, title):
 
 def iterateJSON(counter):
     loopcounter = 0
+    start_time = time.time()
     for category in data:
         for paper in data[category]:
-            if counter == 20:
+            if counter == 50:
                 return
             if loopcounter < counter:
                 loopcounter += 1
+                print("Skipping...")
                 continue
+            if ((counter - prev_paper_count) % 5 == 0 and prev_paper_count != loopcounter):
+                print("Waiting for firecrawl rate limit...")
+                while True:
+                    elapsed_time = time.time() - start_time
+                    if elapsed_time >= 61:  # Check if elapsed time is greater than or equal to 61 seconds
+                        start_time = time.time()
+                        break
+                    time.sleep(1)  # Sleep for a short while to prevent tight loop
+                    
             filePath = extractPDFUrl(paper["link"], paper["title"])
                         
             print(f"Successfully extract {paper["title"]}")
             print(f"Currently on paper: {counter} (0 index)")
             counter += 1
+            loopcounter += 1
             
-
-iterateJSON(counter=9)
+prev_paper_count = 30
+iterateJSON(prev_paper_count)
 
 
 
