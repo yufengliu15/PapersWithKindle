@@ -1,13 +1,15 @@
 import json, os, requests
 from firecrawl import FirecrawlApp
 from dotenv import load_dotenv
-import os
 from urllib.parse import urlparse
+from openai import OpenAI
 
 load_dotenv()
-API_KEY = os.getenv('API_KEY')
+FIRE_CRAWL_API_KEY = os.getenv('FIRE_CRAWL_API_KEY')
+OPEN_AI_API_KEY = os.getenv('OPEN_AI_API_KEY')
 
-app = FirecrawlApp(api_key=API_KEY)
+app = FirecrawlApp(api_key=FIRE_CRAWL_API_KEY)
+client = OpenAI(api_key=OPEN_AI_API_KEY)
 
 f = open('papers.json')
 
@@ -44,16 +46,44 @@ def download_file(url, filename):
     #except:
     #    print("Unable to download the PDF from Sematic Scholar")
 
+def extract(content):
+    entity_extraction_system_message = {"role": "system", "content": ""}
+
+    messages = [entity_extraction_system_message]
+    messages.append({"role": "user", "content": content})
+
+    response = client.chat.completions.create(
+          model="gpt-4o",
+          messages=messages,
+          stream=False,
+          response_format={"type": "json_object"}
+      )
+
+    return response.choices[0].message.content
+     
+
+def extractPDFUrl(link):
+    scraped_data = app.scrape_url(link)['markdown']
+    print(scraped_data)
+    
+    return
+
 def iterateJSON(counter):
     for category in data:
         for paper in data[category]:
             if counter == 1:
                 return
             counter += 1
-            paper["filepath"] = "blah"
-            print(paper)
+            pdfUrl = extractPDFUrl(paper["link"])
+            
 
 iterateJSON(counter=0)
+
+with open('papers.json', 'w') as f:
+    json.dump(data, f)
+    f.close
+
+
 
 
 
