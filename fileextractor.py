@@ -18,37 +18,13 @@ data = json.load(f)
 def download_file(url, filename):
     response = requests.get(url)
     
-    with open("./papers/" + filename, 'wb') as file:
+    with open("./papers/" + filename + ".pdf", 'wb') as file:
         file.write(response.content)
     
-    return "./papers/" + filename
+    return "./papers/" + filename + ".pdf"
 
-#def extractGoogleScholar(title, link):
-    #try:
-        #link = "https://www.semanticscholar.org/paper/WinoGrande-Sakaguchi-Bras/401dc39c2c8c910253d47980cfa3b4d2f7790d9b"
-        #scraped_data = app.scrape_url(link)
-        #print(scraped_data['markdown'])
-        #parsedData = BeautifulSoup(htmlData, "html.parser")
-        #span = parsedData.findAll('span')
-        #if (not span):
-        #    print(urlparse(link).netloc)
-        #else:
-        #    print(urlparse(link).netloc)
-        #    if (len(span) < 95):
-        #        print(span)
-        #        return
-        #    link_to_pdf = span[95].parent["href"]
-        #    print(f"span[95].parent['href']: {link_to_pdf}")
-        #    print(f"span[95]: {span[95].text}")
-        #    #if (span[95].content)
-        #    if (not ("/scholar_alerts" in link_to_pdf)):
-        #        return download_file(link_to_pdf, title + ".pdf")
-    #except:
-    #    print("Unable to download the PDF from Sematic Scholar")
-
-def extract(content):
-    entity_extraction_system_message = {"role": "system", "content": ""}
-
+def extract(content: str, title):
+    entity_extraction_system_message = {"role": "system", "content": "Return the PDF link to the paper with title: "+ title +". The link should be hyperlinked with PDF, or the url itself may contain the words PDF. If there are multiple papers, look for the first occurence of the PDF paper with the provided title. Return as a JSON: {'link': 'url'}"}
     messages = [entity_extraction_system_message]
     messages.append({"role": "user", "content": content})
 
@@ -59,25 +35,29 @@ def extract(content):
           response_format={"type": "json_object"}
       )
 
+    print(response.usage)
     return response.choices[0].message.content
      
 
-def extractPDFUrl(link):
+def extractPDFUrl(link, title):
     scraped_data = app.scrape_url(link)['markdown']
-    print(scraped_data)
-    
-    return
+
+    response = extract(scraped_data, title)
+    res = json.loads(response)
+    print(res)
+    return download_file(res["link"], title)
 
 def iterateJSON(counter):
     for category in data:
         for paper in data[category]:
-            if counter == 1:
+            if counter == 50:
                 return
             counter += 1
-            pdfUrl = extractPDFUrl(paper["link"])
+            filePath = extractPDFUrl(paper["link"], paper["title"])
+            paper["filePath"] = filePath
             
 
-iterateJSON(counter=0)
+iterateJSON(counter=1)
 
 with open('papers.json', 'w') as f:
     json.dump(data, f)
