@@ -24,7 +24,7 @@ def download_file(url, filename):
     return "./papers/" + filename + ".pdf"
 
 def extract(content: str, title):
-    entity_extraction_system_message = {"role": "system", "content": "Return the PDF link to the paper with title: "+ title +". The link should be hyperlinked with PDF, or the url itself may contain the words PDF. If there are multiple papers, look for the first occurence of the PDF paper with the provided title. Return as a JSON: {'link': 'url'}"}
+    entity_extraction_system_message = {"role": "system", "content": "Return the PDF link to the paper with title: "+ title +". If the link is hyperlinked with PDF, return that link. If not, then look for a url that contains the words PDF. If there are multiple papers, look for the first occurence of the PDF paper with the provided title. Return as a JSON: {'link': 'url'}"}
     messages = [entity_extraction_system_message]
     messages.append({"role": "user", "content": content})
 
@@ -48,20 +48,24 @@ def extractPDFUrl(link, title):
     return download_file(res["link"], title)
 
 def iterateJSON(counter):
+    loopcounter = 0
     for category in data:
         for paper in data[category]:
-            if counter == 50:
+            if counter == 20:
                 return
-            counter += 1
+            if loopcounter < counter:
+                loopcounter += 1
+                continue
             filePath = extractPDFUrl(paper["link"], paper["title"])
-            paper["filePath"] = filePath
+                        
+            print(f"Successfully extract {paper["title"]}")
+            print(f"Currently on paper: {counter} (0 index)")
+            counter += 1
             
 
-iterateJSON(counter=1)
+iterateJSON(counter=9)
 
-with open('papers.json', 'w') as f:
-    json.dump(data, f)
-    f.close
+
 
 
 
