@@ -49,10 +49,13 @@ def extract(content: str, title):
 
 def extractPDFUrl(link, title):
     scraped_data = app.scrape_url(link)['markdown']
-    
+    print(f"link: {link}")
     if (urlparse(link).netloc == "www.semanticscholar.org"):
         scraped_data = scraped_data[:1700]
-    # TODO: semantic scholar has a lot of useless shit, almost all the things i need are in the first couple of lines. remove everything else to save token usage (money)
+    elif(urlparse(link).netloc == "scholar.google.com"):
+        half_char = len(scraped_data)//2
+        scraped_data = scraped_data[half_char:]
+            
     response = extract(scraped_data, title)
     res = json.loads(response)
     return download_file(res["link"], title)
@@ -62,11 +65,12 @@ def iterateJSON(counter):
     start_time = time.time()
     for category in data:
         for paper in data[category]:
-            if counter == 50:
+            if counter == 100:
                 return
             if loopcounter < counter:
                 loopcounter += 1
-                print("Skipping...")
+                if (loopcounter < 2):
+                    print("Skipping...")
                 continue
             if ((counter - prev_paper_count) % 5 == 0 and prev_paper_count != loopcounter):
                 print("Waiting for firecrawl rate limit...")
@@ -78,7 +82,7 @@ def iterateJSON(counter):
                     time.sleep(1)  # Sleep for a short while to prevent tight loop
                     
             filePath, result = extractPDFUrl(paper["link"], paper["title"])
-               
+            
             if (result):      
                 print(f"Successfully extract {paper["title"]} \n")
             else:
@@ -89,7 +93,7 @@ def iterateJSON(counter):
             counter += 1
             loopcounter += 1
             
-prev_paper_count = 32
+prev_paper_count = 95
 iterateJSON(prev_paper_count)
 
 
