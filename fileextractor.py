@@ -23,12 +23,6 @@ def download_file(url, filename):
     safe_filename = filename.replace("/", "⁄")
     with open("./papers/" + safe_filename + ".pdf", 'wb') as file:
         file.write(response.content)
-        
-    if ("403 Forbidden" in str(response.content)):
-        brokenPaper.append(safe_filename)
-        with open("brokenPapers.json", "w") as outfile:
-            json.dump(brokenPaper,outfile)
-        return None, False
     
     return "./papers/" + safe_filename + ".pdf", True
 
@@ -69,7 +63,7 @@ def iterateJSON(counter):
     loopcounter = 0
     for category in data:
         for paper in data[category]:
-            if counter == 600:
+            if counter == 900:
                 return
             if loopcounter < counter:
                 loopcounter += 1
@@ -81,7 +75,7 @@ def iterateJSON(counter):
                 start_time = time.time()
                 while True:
                     elapsed_time = time.time() - start_time
-                    if elapsed_time >= 50:  
+                    if elapsed_time >= 40:  
                         start_time = time.time()
                         break
                     time.sleep(1)  # Sleep for a short while to prevent tight loop
@@ -98,13 +92,6 @@ def iterateJSON(counter):
             counter += 1
             loopcounter += 1
             
-prev_paper_count = 451
+prev_paper_count = 815
 iterateJSON(prev_paper_count)
-
-
-
-
-
-
-
 
