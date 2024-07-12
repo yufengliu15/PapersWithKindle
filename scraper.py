@@ -14,13 +14,6 @@ tables = parsedData.find_all('table')
 # regex
 pattern = r'\((.*?)\)'
 
-def download_file(url, filename):
-    response = requests.get(url)
-    
-    with open("./papers/" + filename, 'wb') as file:
-        file.write(response.content)
-    
-    return "./papers/" + filename
 
 # functions to extract html
 # -----------------------------
@@ -63,8 +56,9 @@ for table in tables:
     category = re.findall(pattern, table.find('th').string)[0]
     rows = table.find('tbody').find_all('tr')
     
-    papers[category] = None
-    papersOfCategory = []
+    if (not category in papers):
+        papers[category] = []
+
     for row in rows:
         link = extractLink(row)
         title = extractTitle(row)
@@ -83,11 +77,7 @@ for table in tables:
 
         # add all parsed fields into an array
         paper = {"year": year, "title": title, "author": author, "link": link}
-        papersOfCategory.append(paper)
-        
-        
-    # send to dictionary
-    papers[category] = papersOfCategory
+        papers[category].append(paper)
     
 # export as JSON
 try:  
