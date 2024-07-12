@@ -52,7 +52,6 @@ def extractPDFUrl(link, title):
     
     if (urlparse(link).netloc == "www.semanticscholar.org"):
         scraped_data = scraped_data[:1700]
-    print(scraped_data)
     # TODO: semantic scholar has a lot of useless shit, almost all the things i need are in the first couple of lines. remove everything else to save token usage (money)
     response = extract(scraped_data, title)
     res = json.loads(response)
@@ -81,15 +80,16 @@ def iterateJSON(counter):
             filePath, result = extractPDFUrl(paper["link"], paper["title"])
                
             if (result):      
-                print(f"Successfully extract {paper["title"]}")
+                print(f"Successfully extract {paper["title"]} \n")
             else:
+                print("=============================================")
                 print(f"Unsuccessful extraction of {paper["title"]}")
             
             print(f"Currently on paper: {counter} (0 index)")
             counter += 1
             loopcounter += 1
             
-prev_paper_count = 30
+prev_paper_count = 32
 iterateJSON(prev_paper_count)
 
 
