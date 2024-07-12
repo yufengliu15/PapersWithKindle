@@ -15,13 +15,21 @@ f = open('papers.json')
 
 data = json.load(f)
 
+brokenPaper = []
+
 def download_file(url, filename):
     response = requests.get(url)
-    # TODO: ADD LIST TO CATCH INVALID PDFS
+    
     with open("./papers/" + filename + ".pdf", 'wb') as file:
         file.write(response.content)
+        
+    if ("403 Forbidden" in str(response.content)):
+        brokenPaper.append(filename)
+        with open("brokenPapers.json", "w") as outfile:
+            json.dump(brokenPaper,outfile)
+        return None, False
     
-    return "./papers/" + filename + ".pdf"
+    return "./papers/" + filename + ".pdf", True
 
 def extract(content: str, title):
     entity_extraction_system_message = {"role": "system", "content": "Return the PDF link to the paper with title: "+ title +". If the link is hyperlinked with PDF, return that link. If not, then look for a url that contains the words PDF. If there are multiple papers, look for the first occurence of the PDF paper with the provided title. Return as a JSON: {'link': 'url'}"}
@@ -41,10 +49,13 @@ def extract(content: str, title):
 
 def extractPDFUrl(link, title):
     scraped_data = app.scrape_url(link)['markdown']
+    
+    if (urlparse(link).netloc == "www.semanticscholar.org"):
+        scraped_data = scraped_data[:1700]
+    print(scraped_data)
     # TODO: semantic scholar has a lot of useless shit, almost all the things i need are in the first couple of lines. remove everything else to save token usage (money)
     response = extract(scraped_data, title)
     res = json.loads(response)
-    print(res)
     return download_file(res["link"], title)
 
 def iterateJSON(counter):
@@ -67,9 +78,13 @@ def iterateJSON(counter):
                         break
                     time.sleep(1)  # Sleep for a short while to prevent tight loop
                     
-            filePath = extractPDFUrl(paper["link"], paper["title"])
-                        
-            print(f"Successfully extract {paper["title"]}")
+            filePath, result = extractPDFUrl(paper["link"], paper["title"])
+               
+            if (result):      
+                print(f"Successfully extract {paper["title"]}")
+            else:
+                print(f"Unsuccessful extraction of {paper["title"]}")
+            
             print(f"Currently on paper: {counter} (0 index)")
             counter += 1
             loopcounter += 1
