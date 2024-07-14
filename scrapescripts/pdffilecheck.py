@@ -27,7 +27,7 @@ def iterateJSON(counter, brokenPaper):
             loop_counter += 1
                     
 brokenPaper = []
-counter = 815        
+counter = 1507  
 iterateJSON(counter, brokenPaper)
 
 print("Calculating % of invalid PDFs in respect to the number checked.")
