@@ -5,10 +5,10 @@ from urllib.parse import urlparse
 from openai import OpenAI
 
 load_dotenv()
-FIRE_CRAWL2_API_KEY = os.getenv('FIRE_CRAWL2_API_KEY')
+FIRE_CRAWL_API_KEY = os.getenv('FIRE_CRAWL_API_KEY')
 OPEN_AI_API_KEY = os.getenv('OPEN_AI_API_KEY')
 
-app = FirecrawlApp(api_key=FIRE_CRAWL2_API_KEY)
+app = FirecrawlApp(api_key=FIRE_CRAWL_API_KEY)
 client = OpenAI(api_key=OPEN_AI_API_KEY)
 
 f = open('papers.json')
@@ -63,7 +63,7 @@ def iterateJSON(counter):
     loopcounter = 0
     for category in data:
         for paper in data[category]:
-            if counter == 900:
+            if counter == 1507:
                 return
             if loopcounter < counter:
                 loopcounter += 1
@@ -75,7 +75,7 @@ def iterateJSON(counter):
                 start_time = time.time()
                 while True:
                     elapsed_time = time.time() - start_time
-                    if elapsed_time >= 40:  
+                    if elapsed_time >= 45:  
                         start_time = time.time()
                         break
                     time.sleep(1)  # Sleep for a short while to prevent tight loop
@@ -92,6 +92,6 @@ def iterateJSON(counter):
             counter += 1
             loopcounter += 1
             
-prev_paper_count = 815
+prev_paper_count = 1500
 iterateJSON(prev_paper_count)
 
