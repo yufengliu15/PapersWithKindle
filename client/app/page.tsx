@@ -5,7 +5,9 @@ export default function Page() {
         <div className="content">
             <div className="header">
                 <h1>paperswithkindle</h1>
-                <h1><a href="https://yufengliu.tech" target="_blank">yufengliu.tech</a></h1>
+                <div className="header-personal-website-link">
+                    <h1><a href="https://yufengliu.tech" target="_blank">yufengliu.tech</a></h1>
+                </div>
             </div>
             <div className="ascii-art">
                 <p>
@@ -25,10 +27,10 @@ export default function Page() {
             <div className="email-signup">
                 <div className="email-signup-text">
                     <p>
-                    join the waitlist now
+                    currently building...
                     </p>
                 </div>
-                
+
             </div>
         </div>
     )

@@ -5,6 +5,11 @@
     font-weight: 400;
     font-style: normal;
 }
+@media screen and (max-width: 800px) {
+    .header-personal-website-link {
+        display: none;
+    }
+}
 
 .header {
     display: flex;
