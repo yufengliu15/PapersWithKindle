@@ -35,7 +35,6 @@ export default function AsciiGraph() {
         const options = {
             width: size.width/38,
             height: data.length,
-            orientation: "horizontal",
             valueLabels: true
         };
         var chart = new Chartscii(data, options).create();
@@ -44,7 +43,6 @@ export default function AsciiGraph() {
         const options = {
             width: 50,
             height: data.length,
-            orientation: "horizontal",
             valueLabels: true
         };
         var chart = new Chartscii(data, options).create();
