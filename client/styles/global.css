@@ -9,6 +9,7 @@
     .header-personal-website-link {
         display: none;
     }
+
 }
 
 .header {
@@ -31,6 +32,11 @@ body {
 }
 
 .ascii-art {
+    display: flex;
+    justify-content: center;
+}
+
+.ascii-art-bargraph {
     display: flex;
     justify-content: center;
 }
