@@ -21,7 +21,9 @@ export default function Page() {
                     </p>
                 </div>                
             </div>
-
+            <div className="ascii-art-bargraph-title">
+                Number of Research Papers Per Category
+            </div>
             <AsciiGraph></AsciiGraph>
 
         </div>

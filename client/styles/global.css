@@ -31,14 +31,15 @@ body {
     color: #15CE27;
 }
 
-.ascii-art {
+.ascii-art, .ascii-art-bargraph {
     display: flex;
     justify-content: center;
 }
 
-.ascii-art-bargraph {
+.ascii-art-bargraph-title {
     display: flex;
     justify-content: center;
+    padding-top: 3%;
 }
 
 .email-signup {
