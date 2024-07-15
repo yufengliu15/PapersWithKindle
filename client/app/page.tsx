@@ -26,6 +26,21 @@ export default function Page() {
             </div>
             <AsciiGraph></AsciiGraph>
 
+            <div className="references-section">
+                <div className="references-section-title">
+                    <p>References</p>
+                </div>
+                <div className="references-section-text">
+                    <p>Papers were scraped from this website maintained by Jeff Huang:</p>
+                    <a href="https://jeffhuang.com/best_paper_awards/conferences.html" target="_blank">https://jeffhuang.com/best_paper_awards/conferences.html</a>
+                </div>
+            </div>
+
+            <br></br>
+            <br></br>
+            <br></br>
+            <br></br>
+
         </div>
     )
 }
